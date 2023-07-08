@@ -1,5 +1,5 @@
-use syn::{DeriveInput, Expr, Lit, ExprLit, Data, DataStruct, Type, Path, Ident, PathArguments, AngleBracketedGenericArguments, GenericArgument};
-use quote::{quote, ToTokens, __private::TokenStream};
+use syn::{spanned::Spanned, DeriveInput, Expr, Lit, ExprLit, Data, DataStruct, Type, Path, Ident, PathArguments, AngleBracketedGenericArguments, GenericArgument};
+use quote::{quote, quote_spanned, ToTokens, __private::{TokenStream, Span}};
 use convert_case::{Case, Casing};
 
 // To anyone who knows how to write proc macros, I'm sorry
@@ -44,7 +44,7 @@ pub fn derive_generatable(item: proc_macro::TokenStream) -> proc_macro::TokenStr
         if let Some(last_segment) = field_type.path.segments.last() {
             if let PathArguments::AngleBracketed(AngleBracketedGenericArguments { args, .. }) = &last_segment.arguments {
                 if let Some(GenericArgument::Type(Type::Path(inner_type))) = args.first() {
-                    let attr_line = gen_attr_line(field_name, &inner_type.path, false);
+                    let attr_line = gen_attr_line(f.span(), field_name, &inner_type.path, false);
                     return quote! {
                         if let Some(#field_name) = self.#field_name {
                             #attr_line
@@ -53,7 +53,7 @@ pub fn derive_generatable(item: proc_macro::TokenStream) -> proc_macro::TokenStr
                 }
             }
         }
-        gen_attr_line(field_name, &field_type.path, true)
+        gen_attr_line(f.span(), field_name, &field_type.path, true)
     });
 
     let name = input.ident;
@@ -73,7 +73,7 @@ pub fn derive_generatable(item: proc_macro::TokenStream) -> proc_macro::TokenStr
     }.into()
 }
 
-fn gen_attr_line(field_name: &Ident, path: &Path, append_self: bool) -> TokenStream {
+fn gen_attr_line(span: Span, field_name: &Ident, path: &Path, append_self: bool) -> TokenStream {
     let self_dot = if append_self {
         quote!{ self. }
     } else {
@@ -81,17 +81,17 @@ fn gen_attr_line(field_name: &Ident, path: &Path, append_self: bool) -> TokenStr
     };
     let field_name_kebab = field_name.to_string().to_case(Case::Kebab);
     if path.is_ident("String") {
-        quote! {
+        quote_spanned! { span =>
             attr.insert(#field_name_kebab.to_owned(), #self_dot #field_name);
         }.into()
     } else if path.is_ident("bool") {
-        quote! {
+        quote_spanned! { span =>
             if #self_dot #field_name {
                 attr.insert(#field_name_kebab.to_owned(), "".to_owned());
             }
         }.into()
     } else {
-        quote! {
+        quote_spanned! { span =>
             attr.insert(#field_name_kebab.to_owned(), #self_dot #field_name.to_string());
         }.into()
     }
