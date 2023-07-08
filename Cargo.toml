@@ -1,25 +1,12 @@
-[package]
-name = "mdbook-discord-components"
-version = "0.1.0"
-edition = "2021"
+[workspace]
+members = [
+    "mdbook-discord-components",
+    "mdbook-discord-components-derive",
+    "mdbook-discord-components-wasm",
+]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[profile.release]
+opt-level = "s"
 
-[lib]
-proc-macro = true
-
-[dependencies]
-mdbook = "0.4"
-clap = "4"
-serde = { version = "1", default_features = false, features = ["derive"] }
-serde_json = "1"
-serde_yaml = "0.9"
-serde-aux = "4"
-pulldown-cmark = "0.9"
-pulldown-cmark-to-cmark = "10"
-lazy_static = "1"
-regex = "1"
-oxhttp = { version = "0.1", default_features = false, features = ["client", "rustls"] }
-syn = "2"
-quote = "1"
-convert_case = "0.6"
+[profile.release.package.mdbook-discord-components]
+opt-level = 3

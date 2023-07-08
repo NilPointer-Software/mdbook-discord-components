@@ -1,0 +1,16 @@
+[package]
+name = "mdbook-discord-components-derive"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+#name = "mdbook-discord-components-derive"
+proc-macro = true
+
+[dependencies]
+syn = { version = "2", default_features = false, features = ["derive", "proc-macro"] }
+quote = "1"
+proc-macro2 = "1"
+convert_case = "0.6"

@@ -1,5 +1,6 @@
 use syn::{spanned::Spanned, DeriveInput, Expr, Lit, ExprLit, Data, DataStruct, Type, Path, Ident, PathArguments, AngleBracketedGenericArguments, GenericArgument};
-use quote::{quote, quote_spanned, ToTokens, __private::{TokenStream, Span}};
+use quote::{quote, quote_spanned, ToTokens};
+use proc_macro2::{TokenStream, Span};
 use convert_case::{Case, Casing};
 
 // To anyone who knows how to write proc macros, I'm sorry

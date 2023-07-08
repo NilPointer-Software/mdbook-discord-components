@@ -1,4 +1,4 @@
-use mdbook_discord_components::Generatable;
+use mdbook_discord_components_derive::Generatable;
 
 #[derive(Default, Generatable)]
 pub struct Message { // TODO: implement attrubute macros to automate implementing Generatable
