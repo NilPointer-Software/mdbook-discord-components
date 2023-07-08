@@ -4,9 +4,11 @@ use std::{
     collections::HashMap
 };
 use serde::Deserialize;
-use mdbook::errors::Result;
+use anyhow::Result;
 
-use super::{DiscordCodeBlock, Parser, DISCORD_CLIENT};
+#[cfg(feature = "http")]
+use super::DISCORD_CLIENT;
+use super::{DiscordCodeBlock, Parser};
 use crate::components::{
     message::*,
     embed::*,
@@ -90,17 +92,23 @@ impl YamlMessage {
 
     fn into_component(self) -> (Option<HashMap<String, String>>, ComponentTree) {
         let mut message = Message::default();
+        #[cfg(feature = "http")]
         if let Some(user_id) = self.user_id {
+            eprintln!("User ID: {user_id}");
             if let Some(user) = DISCORD_CLIENT.user(user_id) {
+                eprintln!("found user: {:?}", user);
                 message.author = user.display_name();
                 message.avatar = Some(user.avatar_url());
                 message.bot = user.is_bot();
+                eprintln!("Message avatar: {:?}", message.avatar);
             }
         }
         if let Some(username) = self.username {
             message.author = username;
         }
-        message.avatar = self.avatar;
+        if message.avatar.is_none() {
+            message.avatar = self.avatar;
+        }
         message.role_color = self.color;
         message.timestamp = self.timestamp;
         if let Some(bot) = self.bot {
@@ -297,8 +305,8 @@ impl YamlParserError {
         Self { message: message.into() }
     }
 
-    fn anyhow(self) -> mdbook::errors::Error {
-        mdbook::errors::Error::new(self)
+    fn anyhow(self) -> anyhow::Error {
+        anyhow::Error::new(self)
     }
 }
 

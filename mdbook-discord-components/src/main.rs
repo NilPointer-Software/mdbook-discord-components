@@ -6,8 +6,9 @@ use mdbook::{
 };
 use preprocessor::DiscordComponentsPreprocessor;
 
-mod preprocessor;
+#[cfg(feature = "http")]
 mod discord;
+mod preprocessor;
 mod parsers;
 mod generators;
 mod components;

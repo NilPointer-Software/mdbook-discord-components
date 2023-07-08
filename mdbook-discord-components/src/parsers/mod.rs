@@ -1,19 +1,21 @@
 use std::fmt::Display;
+use anyhow::{Result, Error};
 use pulldown_cmark::Event;
-use mdbook::errors::{Result, Error};
 
 mod yaml_parser;
 
 pub use yaml_parser::YamlParser;
 
+#[cfg(feature = "http")]
+use crate::discord::Discord;
 use crate::{
     components::Components,
     generators::Generator,
-    discord::Discord,
 };
 
 pub static DISCORD_COMPONENTS_SCRIPT: &str = "<script type=\"module\" src=\"https://unpkg.com/@skyra/discord-components-core\"></script>\n";
 
+#[cfg(feature = "http")]
 lazy_static::lazy_static! {
     static ref DISCORD_CLIENT: Discord = Discord::default();
 }

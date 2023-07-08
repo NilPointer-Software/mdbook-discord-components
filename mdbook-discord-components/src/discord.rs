@@ -5,9 +5,9 @@ use std::{
     sync::RwLock,
     env,
 };
-use mdbook::errors::Result;
 use serde_aux::field_attributes::deserialize_number_from_string;
 use serde::Deserialize;
+use anyhow::Result;
 use oxhttp::{
     model::{Request, Method, Status},
     Client,
@@ -63,7 +63,7 @@ impl Discord {
     }
 }
 
-#[derive(Deserialize, Clone)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct User {
     #[serde(deserialize_with = "deserialize_number_from_string")]
     id: u64,

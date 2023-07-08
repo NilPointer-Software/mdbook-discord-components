@@ -6,13 +6,13 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
-crate-type = ["cdylib", "rlib"]
+crate-type = ["cdylib"]
 
 [features]
 default = ["console_error_panic_hook"]
 
 [dependencies]
-mdbook-discord-components = { path = "../mdbook-discord-components" }
+mdbook-discord-components = { path = "../mdbook-discord-components", default_features = false }
 
 wasm-bindgen = "0.2"
 js-sys = "0.3"

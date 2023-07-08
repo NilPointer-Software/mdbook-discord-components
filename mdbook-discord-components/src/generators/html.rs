@@ -1,6 +1,6 @@
 use std::collections::HashMap;
-use mdbook::errors::Result;
 use pulldown_cmark::Event;
+use anyhow::Result;
 
 use super::Generator;
 use crate::components::{Components, ComponentTree};

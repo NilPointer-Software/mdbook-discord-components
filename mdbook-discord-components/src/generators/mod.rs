@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use regex::{Regex, Captures};
-use mdbook::errors::Result;
 use pulldown_cmark::Event;
+use anyhow::Result;
 
 use crate::components::Components;
 
