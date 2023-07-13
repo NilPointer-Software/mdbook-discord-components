@@ -4,6 +4,8 @@ A mdBook preprocessor for building [Discord Webcomponents](https://github.com/sk
 
 Work in progress
 
+Test site: https://nilpointer-software.github.io/mdbook-discord-components/
+
 ## Yaml parser example
 
 ``` yaml
