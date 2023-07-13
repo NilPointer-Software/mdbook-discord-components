@@ -1,0 +1,36 @@
+name: WASM Page deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'mdbook-discord-components-wasm/static/**'
+
+jobs:
+  build_and_deploy:
+    name: Builg & Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      - name: Build WASM
+        run: wasm-pack --release --target web mdbook-discord-components-wasm
+      - name: Deploy to GitHub Pages
+        run: |
+          git worktree add gh-pages
+          git config user.name "GitHub Actions"
+          git config user.email ""
+          cd gh-pages
+          git update-ref -d refs/heads/gh-pages
+          rm -rf *
+          mv ../mdbook-discord-components-wasm/static/* .
+          mkdir pkg
+          mv ../mdbook-discord-components-wasm/pkg/*wasm.js pkg/.
+          mv ../mdbook-discord-components-wasm/pkg/*.wasm pkg/.
+          git add .
+          git commit -m "Deploy $GITHUB_SHA to gh-pages"
+          git push --force --set-upstream origin gh-pages
