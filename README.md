@@ -53,4 +53,4 @@ Test site: https://nilpointer-software.github.io/mdbook-discord-components/
 \```
 ```
 
-Please look at the [yaml_parser.rs](src/parsers/yaml_parser.rs) file for available fields.
+Please look at the [yaml_parser.rs](mdbook-discord-components/src/parsers/yaml_parser.rs) file for available fields.
