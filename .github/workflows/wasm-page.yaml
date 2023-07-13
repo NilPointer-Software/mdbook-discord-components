@@ -6,11 +6,12 @@ on:
     branches:
       - main
     paths:
+      - '.github/workflows/wasm-page.yaml'
       - 'mdbook-discord-components-wasm/static/**'
 
 jobs:
   build_and_deploy:
-    name: Builg & Deploy
+    name: Build & Deploy
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -18,7 +19,7 @@ jobs:
       - name: Install wasm-pack
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
       - name: Build WASM
-        run: wasm-pack --release --target web mdbook-discord-components-wasm
+        run: wasm-pack build --release --target web mdbook-discord-components-wasm
       - name: Deploy to GitHub Pages
         run: |
           git worktree add gh-pages
