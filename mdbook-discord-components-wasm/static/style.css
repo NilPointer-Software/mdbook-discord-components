@@ -76,6 +76,11 @@ main {
     margin-top: 10px;
 }
 
+.error {
+    color: red;
+    text-align: center;
+}
+
 footer {
     display: flex;
     justify-content: center;

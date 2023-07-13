@@ -53,6 +53,7 @@ impl Parser for YamlParser {
 
 #[derive(Deserialize)]
 struct YamlMessage {
+    #[cfg(feature = "http")]
     user_id: Option<u64>,
     username: Option<String>,
     avatar: Option<String>,
@@ -86,8 +87,14 @@ impl YamlMessage {
         }
     }
 
+    #[cfg(feature = "http")]
     fn is_valid(&self) -> bool { // Message isn't valid if no username or user_id is provided, or the content is empty
         !((self.user_id.is_none() && self.username.is_none()) || self.content.is_empty())
+    }
+
+    #[cfg(not(feature = "http"))]
+    fn is_valid(&self) -> bool { // Message isn't valid if no username is provided, or the content is empty
+        !(self.username.is_none() || self.content.is_empty())
     }
 
     fn into_component(self) -> (Option<HashMap<String, String>>, ComponentTree) {

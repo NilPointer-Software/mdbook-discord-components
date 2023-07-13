@@ -10,7 +10,11 @@ button.addEventListener("click", () => {
     if (!wasm || !main || !input)
         return;
     let inputText = input.value;
-    main.innerHTML = parse("yaml", inputText);
+    try {
+        main.innerHTML = parse("yaml", inputText);
+    } catch (err) {
+        main.innerHTML = `<p class="error">${err}</p>`;
+    }
 });
 
 input.addEventListener("change", () => {
