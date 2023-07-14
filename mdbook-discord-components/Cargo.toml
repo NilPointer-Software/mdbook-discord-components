@@ -27,3 +27,4 @@ lazy_static = "1"
 regex = "1"
 oxhttp = { version = "0.1", default_features = false, features = ["client", "rustls"], optional = true }
 anyhow = "1"
+convert_case = "0.6"

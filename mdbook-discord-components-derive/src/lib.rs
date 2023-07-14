@@ -71,6 +71,12 @@ pub fn derive_generatable(item: proc_macro::TokenStream) -> proc_macro::TokenStr
                 attr
             }
         }
+
+        impl Into<Box<dyn crate::generators::Generatable>> for #name {
+            fn into(self) -> Box<dyn crate::generators::Generatable> {
+                Box::new(self)
+            }
+        }
     }.into()
 }
 
@@ -80,7 +86,7 @@ fn gen_attr_line(span: Span, field_name: &Ident, path: &Path, append_self: bool)
     } else {
         quote!{}
     };
-    let field_name_kebab = field_name.to_string().to_case(Case::Kebab);
+    let field_name_kebab = strip_prefix(field_name.to_string().to_case(Case::Kebab), "r#");
     if path.is_ident("String") {
         quote_spanned! { span =>
             attr.insert(#field_name_kebab.to_owned(), #self_dot #field_name);
@@ -95,5 +101,12 @@ fn gen_attr_line(span: Span, field_name: &Ident, path: &Path, append_self: bool)
         quote_spanned! { span =>
             attr.insert(#field_name_kebab.to_owned(), #self_dot #field_name.to_string());
         }.into()
+    }
+}
+
+fn strip_prefix(input: String, prefix: &'static str) -> String {
+    match input.strip_prefix(prefix) {
+        Some(s) => s.to_owned(),
+        None => input,
     }
 }

@@ -14,6 +14,13 @@ pub struct Message { // TODO: implement attrubute macros to automate implementin
 }
 
 #[derive(Generatable)]
+pub struct SystemMessage {
+    pub r#type: String,
+    pub timestamp: Option<String>,
+    pub channel_name: bool,
+}
+
+#[derive(Generatable)]
 #[gen(slot = "reactions")]
 pub struct Reactions;
 
@@ -36,4 +43,13 @@ impl Default for Reaction {
             reacted: false,
         }
     }
+}
+
+#[derive(Generatable)]
+#[gen(slot = "attachments")]
+pub struct Attachment {
+    pub url: String,
+    pub height: Option<u64>,
+    pub width: Option<u64>,
+    pub alt: Option<String>,
 }

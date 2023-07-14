@@ -11,7 +11,9 @@ button.addEventListener("click", () => {
         return;
     let inputText = input.value;
     try {
-        main.innerHTML = parse("yaml", inputText);
+        let out = parse("yaml", inputText);
+        console.info("Parser produced", `\n${out}`);
+        main.innerHTML = out;
     } catch (err) {
         main.innerHTML = `<p class="error">${err}</p>`;
     }
