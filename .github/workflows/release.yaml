@@ -20,8 +20,8 @@ jobs:
         run: |
           cargo build --release
           cd target/release/
-          tar czf mdbook-discord-components-{{ github.ref }}.tar.gz mdbook-discord-components
+          tar czf mdbook-discord-components-${{ github.ref }}.tar.gz mdbook-discord-components
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: mdbook-discord-components-{{ github.ref }}.tar.gz
+          files: mdbook-discord-components-${{ github.ref }}.tar.gz
