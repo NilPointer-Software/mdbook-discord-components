@@ -24,4 +24,5 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: mdbook-discord-components-${{ github.ref_name }}.tar.gz
+          fail_on_unmatched_files: true
+          files: target/release/mdbook-discord-components-${{ github.ref_name }}.tar.gz
