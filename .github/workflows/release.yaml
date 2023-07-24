@@ -1,0 +1,25 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+
+jobs:
+  release:
+    name: Create release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+      - name: Build
+        run: |
+          cargo build --release
+          mv target/release/mdbook-discord-components .
+          tar czf mdbook-discord-components-{{ github.ref }}.tar.gz mdbook-discord-components
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: mdbook-discord-components-{{ github.ref }}.tar.gz

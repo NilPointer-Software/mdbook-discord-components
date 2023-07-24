@@ -160,6 +160,7 @@ SystemMessageType is a String with the following valid values:
 | reactions?   | Array of [Reaction](#4-reaction) | Array of reactions
 | attachments? | Array of [Attachment](#5-attachment) | Array of image attachments
 | components?  | Array of [ActionRow](#6-actionrow) | Array of action rows
+| invites?     | Array of [Invite](#8-invite) | Array of invitations
 | content      | String              | The message content
 
 ### 3. Embed
@@ -258,3 +259,14 @@ ButtonType is a String with the following valid values:
 | secondary   | A grey button style
 | success     | A green button style
 | destructive | A red button style
+
+### 8. Invite
+
+| Field      | Type    | Description
+|------------|---------|-------------
+| name       | String  | Invite server name
+| members    | Integer | Server member count. Must be positive
+| online     | Integer | Currently online member count. Must be positive
+| icon?      | String  | Server icon url
+| partnered? | Boolean | Is the server partnered
+| verified?  | Boolean | Is the server verified

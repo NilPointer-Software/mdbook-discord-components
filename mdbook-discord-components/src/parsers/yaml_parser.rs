@@ -13,6 +13,7 @@ use super::{DiscordCodeBlock, Parser};
 use crate::components::{
     components::*,
     message::*,
+    invite::*,
     embed::*,
     *,
 };
@@ -76,6 +77,7 @@ struct YamlBasicMessage {
     reactions: Option<Vec<YamlReaction>>,
     attachments: Option<Vec<YamlAttachment>>,
     components: Option<Vec<YamlActionRow>>,
+    invites: Option<Vec<YamlInvite>>,
 
     content: String,
 }
@@ -206,11 +208,18 @@ impl YamlMessage {
                 if let Some(mut attachments) = basic.attachments {
                     tree.append(&mut attachments.drain(..).map(|a| a.into_component()).collect())
                 }
+                let mut attachments = Vec::<ComponentTree>::new();
                 if let Some(mut components) = basic.components {
+                    attachments.append(&mut components.drain(..).map(|v| v.into_component()).collect());
+                }
+                if let Some(mut invites) = basic.invites {
+                    attachments.append(&mut invites.drain(..).map(|v| v.into_component()).collect())
+                }
+                if attachments.len() > 0 {
                     tree.push(ComponentTree::Node {
                         data: Attachments.into(),
-                        nodes: components.drain(..).map(|v| v.into_component()).collect(),
-                    })
+                        nodes: attachments,
+                    });
                 }
                 (basic.roles, ComponentTree::Node {
                     data: message.into(),
@@ -447,6 +456,33 @@ enum YamlButtonType {
     Secondary,
     Success,
     Destructive,
+}
+
+#[derive(Debug, Deserialize)]
+struct YamlInvite {
+    online: u64,
+    members: u64,
+    name: String,
+    icon: Option<String>,
+    partnered: Option<bool>,
+    verified: Option<bool>,
+}
+
+impl YamlInvite {
+    fn into_component(self) -> ComponentTree {
+        let data = Invite{
+            name: self.name,
+            online: self.online,
+            members: self.members,
+            icon: self.icon,
+            partnered: self.partnered.unwrap_or(false),
+            verified: self.verified.unwrap_or(false),
+        };
+        ComponentTree::Node {
+            data: data.into(),
+            nodes: vec![],
+        }
+    }
 }
 
 #[derive(Debug)]

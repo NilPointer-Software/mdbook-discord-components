@@ -4,6 +4,7 @@ use crate::generators::Generatable;
 pub mod message;
 pub mod embed;
 pub mod components;
+pub mod invite;
 
 #[derive(Default)]
 pub struct Components {
