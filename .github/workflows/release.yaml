@@ -19,7 +19,7 @@ jobs:
       - name: Build
         run: |
           cargo build --release
-          mv target/release/mdbook-discord-components .
+          cd target/release/
           tar czf mdbook-discord-components-{{ github.ref }}.tar.gz mdbook-discord-components
       - name: Release
         uses: softprops/action-gh-release@v1
