@@ -28,19 +28,19 @@ impl Parser for YamlParser {
         match serde_yaml::from_str::<Vec<YamlMessage>>(&code_block.code) {
             Ok(mut m) => {
                 for (i, mut mess) in m.drain(..).enumerate() {
+                    mess.prepare();
                     if !mess.is_valid() {
                         return Err(YamlParserError::new(format!("Invalid message #{}", i+1)).anyhow());
                     }
-                    mess.prepare();
                     mess.push_to_tree(&mut components);
                 }
             },
             Err(_) => {
                 let mut message = serde_yaml::from_str::<YamlMessage>(&code_block.code)?;
+                message.prepare();
                 if !message.is_valid() {
                     return Err(YamlParserError::new("Invalid message").anyhow());
                 }
-                message.prepare();
                 message.push_to_tree(&mut components);
             }
         };
@@ -79,6 +79,7 @@ struct YamlBasicMessage {
     components: Option<Vec<YamlActionRow>>,
     invites: Option<Vec<YamlInvite>>,
 
+    #[serde(default)]
     content: String,
 }
 
@@ -134,7 +135,12 @@ impl YamlMessage {
                 if basic.components.is_some() && basic.components.as_ref().unwrap().len() > 5 {
                     return false
                 }
-                !((basic.user_id.is_none() && basic.username.is_none()) || basic.content.is_empty())
+                if basic.content.is_empty() {
+                    if basic.embeds.is_none() || basic.embeds.as_ref().unwrap().is_empty() {
+                        return false
+                    }
+                }
+                !(basic.user_id.is_none() && basic.username.is_none())
             },
             YamlMessage::System(ref system) => {
                 !system.content.is_empty()
@@ -149,7 +155,12 @@ impl YamlMessage {
                 if basic.components.is_some() && basic.components.as_ref().unwrap().len() > 5 {
                     return false
                 }
-                !(basic.username.is_none() || basic.content.is_empty())
+                if basic.content.is_empty() {
+                    if basic.embeds.is_none() || basic.embeds.as_ref().unwrap().is_empty() {
+                        return false
+                    }
+                }
+                !basic.username.is_none()
             },
             YamlMessage::System(ref system) => {
                 !system.content.is_empty()
@@ -192,7 +203,11 @@ impl YamlMessage {
                 if let Some(verified) = basic.verified {
                     message.verified = verified;
                 }
-                let mut tree = vec![ComponentTree::Text(basic.content)];
+                let mut tree = if basic.content.is_empty() {
+                    vec![]
+                } else {
+                    vec![ComponentTree::Text(basic.content)]
+                };
                 if let Some(embeds) = basic.embeds {
                     for mut embed in embeds {
                         embed.prepare();
