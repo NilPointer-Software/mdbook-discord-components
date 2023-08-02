@@ -8,7 +8,7 @@ use crate::components::Components;
 pub mod html;
 
 lazy_static::lazy_static! {
-    static ref MENTION_REGEX: Regex = Regex::new("<(!?)(t:|@|#)(.*?)>").unwrap();
+    static ref MENTION_REGEX: Regex = Regex::new("<(!?)(t:|e:|@|#)(.*?)>").unwrap();
 }
 
 pub trait Generator {
@@ -25,6 +25,9 @@ fn format_mentions(roles: &HashMap<String, String>, text: String) -> String {
     MENTION_REGEX.replace_all(&text, |captures: &Captures| {
         if &captures[2] == "t:" {
             return format!("<discord-time>{}</discord-time>", &captures[3]);
+        }
+        if &captures[2] == "e:" {
+            return format!("<discord-custom-emoji url=\"{}\"></discord-custom-emoji>", &captures[3]);
         }
         let attr = if &captures[2] == "#" {
             " type=\"channel\"".to_owned()

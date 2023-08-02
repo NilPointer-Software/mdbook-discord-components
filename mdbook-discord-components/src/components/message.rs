@@ -53,3 +53,27 @@ pub struct Attachment {
     pub width: Option<u64>,
     pub alt: Option<String>,
 }
+
+#[derive(Generatable)]
+#[gen(slot = "reply")]
+pub struct Reply {
+    pub author: String,
+    pub avatar: Option<String>,
+    pub role_color: Option<String>,
+    pub attachment: Option<bool>,
+    pub edited: Option<bool>,
+    pub bot: Option<bool>,
+    pub verified: Option<bool>,
+    pub mentions: Option<bool>,
+    pub op: Option<bool>,
+    pub command: Option<bool>,
+}
+
+#[derive(Generatable)]
+#[gen(slot = "reply")]
+pub struct Command {
+    pub command: String,
+    pub author: String,
+    pub avatar: Option<String>,
+    pub role_color: Option<String>,
+}

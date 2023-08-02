@@ -29,8 +29,8 @@ impl Parser for YamlParser {
             Ok(mut m) => {
                 for (i, mut mess) in m.drain(..).enumerate() {
                     mess.prepare();
-                    if !mess.is_valid() {
-                        return Err(YamlParserError::new(format!("Invalid message #{}", i+1)).anyhow());
+                    if let Some(err) = mess.is_valid() {
+                        return Err(YamlParserError::new(format!("Invalid message #{}: {}", i+1, err)).anyhow());
                     }
                     mess.push_to_tree(&mut components);
                 }
@@ -38,8 +38,8 @@ impl Parser for YamlParser {
             Err(_) => {
                 let mut message = serde_yaml::from_str::<YamlMessage>(&code_block.code)?;
                 message.prepare();
-                if !message.is_valid() {
-                    return Err(YamlParserError::new("Invalid message").anyhow());
+                if let Some(err) = message.is_valid() {
+                    return Err(YamlParserError::new(format!("Invalid message: {}", err)).anyhow());
                 }
                 message.push_to_tree(&mut components);
             }
@@ -68,6 +68,9 @@ struct YamlBasicMessage {
     ephemeral: Option<bool>,
     highlight: Option<bool>,
     verified: Option<bool>,
+
+    reply: Option<YamlReply>,
+    command: Option<YamlCommand>,
 
     roles: Option<HashMap<String, String>>,
 
@@ -129,43 +132,59 @@ impl YamlMessage {
     }
 
     #[cfg(feature = "http")]
-    fn is_valid(&self) -> bool { // TODO: Rewrite to a Result and return a proper Error with information of what is wrong
+    fn is_valid(&self) -> Option<&'static str> {
         match self {
             YamlMessage::Basic(ref basic) => {
                 if basic.components.is_some() && basic.components.as_ref().unwrap().len() > 5 {
-                    return false
+                    return Some("too many components");
                 }
                 if basic.content.is_empty() {
                     if basic.embeds.is_none() || basic.embeds.as_ref().unwrap().is_empty() {
-                        return false
+                        return Some("no message content or embeds");
                     }
                 }
-                !(basic.user_id.is_none() && basic.username.is_none())
+                if basic.reply.is_some() && basic.command.is_some() {
+                    return Some("message can't be a reply and a slash command at the same time");
+                }
+                if basic.user_id.is_none() && basic.username.is_none() {
+                    return Some("no user_id or username");
+                }
             },
             YamlMessage::System(ref system) => {
-                !system.content.is_empty()
+                if system.content.is_empty() {
+                    return Some("no system message content");
+                }
             },
         }
+        None
     }
 
     #[cfg(not(feature = "http"))]
-    fn is_valid(&self) -> bool {
+    fn is_valid(&self) -> Option<&'static str> {
         match self {
             YamlMessage::Basic(ref basic) => {
                 if basic.components.is_some() && basic.components.as_ref().unwrap().len() > 5 {
-                    return false
+                    return Some("too many components");
                 }
                 if basic.content.is_empty() {
                     if basic.embeds.is_none() || basic.embeds.as_ref().unwrap().is_empty() {
-                        return false
+                        return Some("no message content or embeds");
                     }
                 }
-                !basic.username.is_none()
+                if basic.reply.is_some() && basic.command.is_some() {
+                    return Some("message can't be a reply and a slash command at the same time");
+                }
+                if basic.username.is_none() {
+                    return Some("no username");
+                }
             },
             YamlMessage::System(ref system) => {
-                !system.content.is_empty()
+                if system.content.is_empty() {
+                    return Some("no system message content");
+                }
             },
         }
+        None
     }
 
     fn into_component(self) -> (Option<HashMap<String, String>>, ComponentTree) {
@@ -208,6 +227,12 @@ impl YamlMessage {
                 } else {
                     vec![ComponentTree::Text(basic.content)]
                 };
+                if let Some(reply) = basic.reply {
+                    tree.splice(0..0, [reply.into_component()]);
+                }
+                if let Some(command) = basic.command {
+                    tree.splice(0..0, [command.into_component()]);
+                }
                 if let Some(embeds) = basic.embeds {
                     for mut embed in embeds {
                         embed.prepare();
@@ -492,6 +517,89 @@ impl YamlInvite {
             icon: self.icon,
             partnered: self.partnered.unwrap_or(false),
             verified: self.verified.unwrap_or(false),
+        };
+        ComponentTree::Node {
+            data: data.into(),
+            nodes: vec![],
+        }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+struct YamlReply {
+    #[serde(default)]
+    author: String,
+    content: String,
+
+    avatar: Option<String>,
+    color: Option<String>,
+
+    attachment: Option<bool>,
+    edited: Option<bool>,
+    bot: Option<bool>,
+    verified: Option<bool>,
+    mentions: Option<bool>,
+    op: Option<bool>,
+    command: Option<bool>,
+
+    #[cfg(feature = "http")]
+    user_id: Option<u64>,
+}
+
+impl YamlReply {
+    fn into_component(mut self) -> ComponentTree {
+        #[cfg(feature = "http")]
+        if let Some(user_id) = self.user_id {
+            if let Some(user) = DISCORD_CLIENT.user(user_id) {
+                self.author = user.display_name();
+                self.avatar = Some(user.avatar_url());
+                self.bot = Some(user.is_bot());
+            }
+        }
+        let data = Reply{
+            author: self.author,
+            avatar: self.avatar,
+            role_color: self.color,
+            attachment: self.attachment,
+            edited: self.edited,
+            bot: self.bot,
+            verified: self.verified,
+            mentions: self.mentions,
+            op: self.op,
+            command: self.command,
+        };
+        ComponentTree::Node {
+            data: data.into(),
+            nodes: vec![ComponentTree::Text(self.content)],
+        }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+struct YamlCommand {
+    command: String,
+    #[serde(default)]
+    author: String,
+    avatar: Option<String>,
+    color: Option<String>,
+    #[cfg(feature = "http")]
+    user_id: Option<u64>,
+}
+
+impl YamlCommand {
+    fn into_component(mut self) -> ComponentTree {
+        #[cfg(feature = "http")]
+        if let Some(user_id) = self.user_id {
+            if let Some(user) = DISCORD_CLIENT.user(user_id) {
+                self.author = user.display_name();
+                self.avatar = Some(user.avatar_url());
+            }
+        }
+        let data = Command{
+            author: self.author,
+            avatar: self.avatar,
+            role_color: self.color,
+            command: self.command,
         };
         ComponentTree::Node {
             data: data.into(),

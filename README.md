@@ -107,7 +107,18 @@ Test site: https://nilpointer-software.github.io/mdbook-discord-components/
   content: | # You can put html tags inside yaml strings
     Welcome, <i style="color: a155ab;">Snazzah</i>. We hope you brought pizza.
 - username: Snazzah
-  content: No.
+  reply:
+    author: Spen
+    mentions: true
+    content: "!echo"
+  content: No. <e:https://avatars.githubusercontent.com/u/63750675>
+- username: Wiki Bot
+  avatar: https://avatars.githubusercontent.com/u/63750675
+  command:
+    author: Big_O
+    command: /test
+  content: |
+    Hello <!@Big_O>
 \```
 ```
 
@@ -161,7 +172,9 @@ SystemMessageType is a String with the following valid values:
 | attachments? | Array of [Attachment](#5-attachment) | Array of image attachments
 | components?  | Array of [ActionRow](#6-actionrow) | Array of action rows
 | invites?     | Array of [Invite](#8-invite) | Array of invitations
-| content      | String              | The message content
+| reply?       | [Reply](#9-reply)   | Reply information
+| command?     | [Command](#10-command) | Slash command information
+| content?     | String              | The message content
 
 ### 3. Embed
 
@@ -270,3 +283,30 @@ ButtonType is a String with the following valid values:
 | icon?      | String  | Server icon url
 | partnered? | Boolean | Is the server partnered
 | verified?  | Boolean | Is the server verified
+
+### 9. Reply
+
+| Field       | Type      | Description
+|-------------|-----------|-------------
+| content     | String    | Referenced message content
+| author?     | String    | Referenced message author username
+| user_id?    | Snowflake | Referrenced message author ID. Will override author, avatar, and bot
+| avatar?     | String    | Referenced message author avatar url
+| bot?        | Boolean   | Whether the referenced message author is a bot
+| verified?   | Boolean   | Whether the referenced message author is a verified bot
+| mentions?   | Boolean   | Whether the reply should mention the referenced message author
+| op?         | Boolean   | Whether the referenced message author was the original poster in a thread
+| color?      | String    | Referenced message author role color
+| attachment? | Boolean   | Whether the referenced message contains attachments
+| edited?     | Boolean   | Whether the referenced message was edited
+| command?    | Bollean   | Whether the referenced message was a response to a slash command
+
+### 10. Command
+
+| Field    | Type      | Description
+|----------|-----------|-------------
+| command  | String    | The invoked slash command name
+| author?  | String    | The user who executed the slash command
+| user_id? | Snowflake | Executing user ID. Will override author, and avatar
+| avatar?  | String    | Executing user avatar url
+| color?   | String    | Executing user role color
