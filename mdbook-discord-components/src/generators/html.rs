@@ -15,7 +15,7 @@ impl Generator for HTMLGenerator {
     fn generate<'a>(&self, mut components: Components) -> Result<Event<'a>> {
         let html = "<discord-messages>\n".to_owned() +
             &components.tree.drain(..).map(|tree| generate_components(&components.roles, tree, 1)).collect::<String>() +
-        "</discord-messages>";
+        "</discord-messages>\n";
         #[cfg(debug_assertions)]
         eprintln!("HTML Generator generated following:\n{html}");
         Ok(Event::Html(html.into()))
