@@ -1,0 +1,113 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;700&display=swap');
+@import url('https://cdn.jsdelivr.net/npm/hack-font@3/build/web/hack-subset.css');
+
+html, body {
+    margin: 0;
+    height: 100%;
+    background-color: #1e1e1e;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+body > div {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    margin: 0 30%; /* Only on bigger screens */
+    padding: 1%;
+}
+
+@media only screen and (max-width: 992px) {
+    body > div {
+        margin: 0;
+    }
+}
+
+header {
+    display: flex;
+    flex-direction: column;
+}
+
+textarea {
+    min-height: 18em;
+    font-family: Hack, monospace;
+    padding: 5px 10px;
+    resize: vertical;
+    background-color: rgb(19, 19, 19);
+    color: rgba(255, 255, 255, 0.8);
+    border: white solid 1px;
+    border-left: none;
+    border-right: none;
+    user-select: none;
+    text-decoration: none;
+}
+
+textarea::-webkit-resizer {
+    color: white;
+}
+
+textarea:focus {
+    outline: none !important;
+}
+
+button {
+    font-family: 'IBM Plex Sans', sans-serif;
+    margin: 0 30%;
+    margin-top: 10px;
+    padding: 1% 0;
+    font-size: large;
+    background-color: transparent;
+    color: white;
+    border: none;
+    border-bottom: white solid 1px;
+    transition-duration: 0.3s;
+}
+
+button:hover {
+    color: black;
+    background-color: white;
+}
+
+main {
+    flex-grow: 1;
+    margin-top: 10px;
+}
+
+.error {
+    color: red;
+    text-align: center;
+}
+
+footer {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    border-top: grey solid 1px;
+    padding: 0.5em;
+    color: grey;
+    font-size: small;
+}
+
+footer > p {
+    font-family: 'IBM Plex Sans', sans-serif;
+    margin: 0;
+}
+
+footer > p:first-child {
+    margin-right: 5px; /* only on bigger screens */
+}
+
+footer > a {
+    transition-duration: 0.3s;
+}
+
+footer > a:visited, footer > a:link {
+    color: grey;
+}
+
+footer > a:hover {
+    color: white;
+}
